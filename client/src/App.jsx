@@ -1,15 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header.jsx';
 import TabBar from './components/TabBar.jsx';
 import ChatView from './components/ChatView.jsx';
 import PortfolioView from './components/PortfolioView.jsx';
+import ConversationSidebar from './components/ConversationSidebar.jsx';
 import { useChat } from './hooks/useChat.js';
 import { usePortfolio } from './hooks/usePortfolio.js';
+import { useCoinPortfolio } from './hooks/useCoinPortfolio.js';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('chat');
-  const { messages, sendMessage, isLoading } = useChat();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('carlbot-theme') || 'dark'
+  );
+
+  // Apply theme to <html> element whenever it changes
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('carlbot-theme', theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+  }
+
+  const {
+    messages,
+    sendMessage,
+    isLoading,
+    conversations,
+    currentId,
+    startNewConversation,
+    switchConversation,
+    deleteConversation,
+  } = useChat();
+
   const { portfolio, addStock, removeStock } = usePortfolio();
+  const { cryptoHoldings, memeHoldings, addHolding, removeHolding } = useCoinPortfolio();
 
   function handleSend(text) {
     sendMessage(text, portfolio);
@@ -17,7 +45,11 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      <Header
+        onMenuClick={() => setSidebarOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeTab === 'chat' ? (
           <ChatView messages={messages} onSend={handleSend} isLoading={isLoading} />
@@ -26,10 +58,25 @@ export default function App() {
             portfolio={portfolio}
             addStock={addStock}
             removeStock={removeStock}
+            cryptoHoldings={cryptoHoldings}
+            memeHoldings={memeHoldings}
+            addHolding={addHolding}
+            removeHolding={removeHolding}
           />
         )}
       </div>
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {sidebarOpen && (
+        <ConversationSidebar
+          conversations={conversations}
+          currentId={currentId}
+          onSwitch={switchConversation}
+          onNew={startNewConversation}
+          onDelete={deleteConversation}
+          onClose={() => setSidebarOpen(false)}
+        />
+      )}
     </>
   );
 }

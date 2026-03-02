@@ -14,9 +14,14 @@ export default function ChatView({ messages, onSend, isLoading }) {
   return (
     <div className="chat-view">
       <div className="chat-messages">
-        {messages.map((msg, i) => (
-          <MessageBubble key={i} message={msg} />
-        ))}
+        {messages.length === 0 ? (
+          <div className="chat-empty-state">
+            <CarlMascot size={80} glow />
+            <span className="chat-empty-label">CarlBot</span>
+          </div>
+        ) : (
+          messages.map((msg, i) => <MessageBubble key={i} message={msg} />)
+        )}
 
         {/* Spinning mascot typing indicator */}
         {isLoading && (
