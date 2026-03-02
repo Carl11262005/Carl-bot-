@@ -117,6 +117,24 @@
   text-align: left;
 }
 
+/* Empty state — centered logo before greeting arrives */
+.chat-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  animation: fadeIn 0.4s ease both;
+}
+
+.chat-empty-label {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
 /* Typing indicator with spinning mascot */
 .typing-indicator {
   display: flex;

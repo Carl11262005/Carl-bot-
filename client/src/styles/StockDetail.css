@@ -348,6 +348,44 @@
   color: var(--text-primary);
 }
 
+/* Interactive chart wrapper */
+.chart-wrapper {
+  /* no extra padding — chart sits flush inside sd-chart-container */
+}
+
+.chart-tooltip-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 16px;
+  min-height: 28px;
+  flex-wrap: wrap;
+}
+
+.ctb-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ctb-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ctb-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ctb-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
