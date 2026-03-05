@@ -1,2 +1,4 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env'), override: true });
+// Load .env.local first (local dev secrets), then .env as fallback
+require('dotenv').config({ path: path.join(__dirname, '.env.local'), override: true });
+require('dotenv').config({ path: path.join(__dirname, '.env') });

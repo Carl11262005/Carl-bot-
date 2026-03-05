@@ -1,14 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { searchSymbol, getQuote } from '../services/stockService.js';
 
-export default function AddStockModal({ onAdd, onClose }) {
-  const [query, setQuery] = useState('');
+export default function AddStockModal({ onAdd, onClose, initialSymbol = null }) {
+  const [query, setQuery] = useState(initialSymbol?.symbol ?? '');
   const [results, setResults] = useState([]);
   const [selected, setSelected] = useState(null);
   const [shares, setShares] = useState('');
   const [buyPrice, setBuyPrice] = useState('');
   const [fetchingPrice, setFetchingPrice] = useState(false);
   const debounceRef = useRef(null);
+
+  /* Auto-select when opened with a pre-filled symbol */
+  useEffect(() => {
+    if (initialSymbol?.symbol) {
+      handleSelect(initialSymbol);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!query || selected) {
@@ -85,7 +93,7 @@ export default function AddStockModal({ onAdd, onClose }) {
                 setSelected(null);
                 setBuyPrice('');
               }}
-              autoFocus
+              autoFocus={!initialSymbol}
             />
             {results.length > 0 && (
               <div className="search-results">
@@ -112,6 +120,7 @@ export default function AddStockModal({ onAdd, onClose }) {
               onChange={(e) => setShares(e.target.value)}
               min="0"
               step="any"
+              autoFocus={!!initialSymbol}
             />
           </div>
 

@@ -36,8 +36,8 @@ export default function App() {
     deleteConversation,
   } = useChat();
 
-  const { portfolio, addStock, removeStock } = usePortfolio();
-  const { cryptoHoldings, memeHoldings, addHolding, removeHolding } = useCoinPortfolio();
+  const { portfolio, addStock, removeStock, updateStock } = usePortfolio();
+  const { cryptoHoldings, memeHoldings, addHolding, removeHolding, updateHolding } = useCoinPortfolio();
 
   function handleSend(text) {
     sendMessage(text, portfolio);
@@ -58,10 +58,12 @@ export default function App() {
             portfolio={portfolio}
             addStock={addStock}
             removeStock={removeStock}
+            updateStock={updateStock}
             cryptoHoldings={cryptoHoldings}
             memeHoldings={memeHoldings}
             addHolding={addHolding}
             removeHolding={removeHolding}
+            updateHolding={updateHolding}
           />
         )}
       </div>

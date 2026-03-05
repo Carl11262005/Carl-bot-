@@ -386,6 +386,140 @@
   margin-left: auto;
 }
 
+/* ── Analysis & Timing card ──────────────────────────────────────────────── */
+.sd-signal-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.sd-signal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sd-signal-icon { font-size: 20px; flex-shrink: 0; }
+
+.sd-signal-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.sd-signal-label { font-size: 14px; font-weight: 700; }
+
+.sd-signal-bar-track {
+  height: 5px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.sd-signal-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.6s ease;
+}
+
+.sd-trend-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sd-sig-block {
+  padding: 12px 16px;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--border);
+}
+
+.sd-sig-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.sd-sig-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+.sd-factors-toggle {
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.sd-factors-toggle:hover { color: var(--text-primary); }
+
+.sd-factors {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sd-factor {
+  font-size: 12px;
+  padding: 3px 0;
+  line-height: 1.4;
+}
+
+.sd-factor.risk     { color: #f97316; }
+.sd-factor.positive { color: #22c55e; }
+
+.sd-disclaimer {
+  padding: 10px 16px;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Add to Portfolio button (shown for non-owned stocks) */
+.sd-add-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px rgba(30, 64, 175, 0.3);
+}
+
+.sd-add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(30, 64, 175, 0.5);
+}
+
+.sd-add-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }

@@ -303,16 +303,28 @@ export function CryptoSection({ onTap }) {
     localStorage.setItem(LS_EXTRA_CRYPTO, JSON.stringify(updated));
   }
 
+  const allCoins = [...CRYPTOS, ...extras];
+  const extraSet = new Set(extras.map((c) => c.symbol));
+  // ~3.5s per card, min 20s
+  const duration = Math.max(20, allCoins.length * 3.5);
+
   return (
     <div className="crypto-section">
       <SectionHeader title="Crypto" accent="#3b82f6" onSearch={addCoin} searchPlaceholder="e.g. UNI, HBAR" />
-      <div className="crypto-cards-row">
-        {CRYPTOS.map((c, i) => (
-          <CryptoCard key={c.symbol} coin={c} index={i} onTap={onTap} />
-        ))}
-        {extras.map((c, i) => (
-          <CryptoCard key={c.symbol} coin={c} index={CRYPTOS.length + i} onTap={onTap} onRemove={removeCoin} />
-        ))}
+      <div className="crypto-ticker-outer">
+        <div className="ticker-fade-left" />
+        <div className="ticker-fade-right" />
+        <div className="crypto-ticker-track" style={{ animationDuration: `${duration}s` }}>
+          {/* First pass — live hook instances */}
+          {allCoins.map((c, i) => (
+            <CryptoCard key={`a-${c.symbol}`} coin={c} index={i} onTap={onTap}
+              onRemove={extraSet.has(c.symbol) ? removeCoin : undefined} />
+          ))}
+          {/* Second pass — duplicate for seamless loop */}
+          {allCoins.map((c, i) => (
+            <CryptoCard key={`b-${c.symbol}`} coin={c} index={i} onTap={onTap} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -326,7 +338,7 @@ export function MemeSection({ onTap }) {
   // Trending coins not already in static list or extras
   const staticSymbols  = new Set(MEME_COINS.map((c) => c.symbol));
   const extraSymbols   = new Set(extras.map((c) => c.symbol));
-  const moonshot = trending.filter((t) => !staticSymbols.has(t.symbol) && !extraSymbols.has(t.symbol));
+  const moonshot = trending.filter((t) => !staticSymbols.has(t.symbol) && !extraSymbols.has(t.symbol)).slice(0, 15);
 
   async function addCoin(symbol) {
     if (MEME_COINS.some((c) => c.symbol === symbol)) return { found: MEME_COINS.find(c => c.symbol === symbol) };
@@ -350,20 +362,40 @@ export function MemeSection({ onTap }) {
     localStorage.setItem(LS_EXTRA_MEME, JSON.stringify(updated));
   }
 
+  const extraSet = new Set(extras.map((c) => c.symbol));
+  const allCoins = [...MEME_COINS, ...extras];
+  const allCards = [...allCoins, ...moonshot]; // include trending for count
+  const duration = Math.max(20, allCards.length * 3.5);
+
   return (
     <div className="crypto-section">
       <SectionHeader title="Meme Coins" accent="#22c55e" onSearch={addCoin} searchPlaceholder="e.g. POPCAT, NEIRO" />
-      <div className="crypto-cards-row">
-        {MEME_COINS.map((c, i) => (
-          <MemeCard key={c.symbol} coin={c} index={i} onTap={onTap} />
-        ))}
-        {extras.map((c, i) => (
-          <MemeCard key={c.symbol} coin={c} index={MEME_COINS.length + i} onTap={onTap} onRemove={removeCoin} />
-        ))}
-        {/* Live Moonshot trending — fills in automatically as coins trend */}
-        {moonshot.slice(0, 15).map((c) => (
-          <TrendingCard key={c.address} coin={c} onTap={onTap} />
-        ))}
+      <div className="crypto-ticker-outer">
+        <div className="ticker-fade-left" />
+        <div className="ticker-fade-right" />
+        <div className="crypto-ticker-track" style={{ animationDuration: `${duration}s` }}>
+          {/* First pass */}
+          {MEME_COINS.map((c, i) => (
+            <MemeCard key={`a-${c.symbol}`} coin={c} index={i} onTap={onTap} />
+          ))}
+          {extras.map((c, i) => (
+            <MemeCard key={`a-x-${c.symbol}`} coin={c} index={MEME_COINS.length + i} onTap={onTap}
+              onRemove={extraSet.has(c.symbol) ? removeCoin : undefined} />
+          ))}
+          {moonshot.map((c) => (
+            <TrendingCard key={`a-t-${c.address}`} coin={c} onTap={onTap} />
+          ))}
+          {/* Second pass — seamless loop */}
+          {MEME_COINS.map((c, i) => (
+            <MemeCard key={`b-${c.symbol}`} coin={c} index={i} onTap={onTap} />
+          ))}
+          {extras.map((c, i) => (
+            <MemeCard key={`b-x-${c.symbol}`} coin={c} index={MEME_COINS.length + i} onTap={onTap} />
+          ))}
+          {moonshot.map((c) => (
+            <TrendingCard key={`b-t-${c.address}`} coin={c} onTap={onTap} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -375,13 +407,19 @@ export function MoonshotSection({ onTap }) {
   if (loading && coins.length === 0) return null;
   if (coins.length === 0) return null;
 
+  const visible = coins.slice(0, 20);
+  const duration = Math.max(20, visible.length * 3.5);
+
   return (
     <div className="crypto-section">
       <SectionHeader title="🌙 Trending on Moonshot" accent="#a855f7" />
-      <div className="crypto-cards-row">
-        {coins.slice(0, 20).map((c) => (
-          <TrendingCard key={c.address} coin={c} onTap={onTap} />
-        ))}
+      <div className="crypto-ticker-outer">
+        <div className="ticker-fade-left" />
+        <div className="ticker-fade-right" />
+        <div className="crypto-ticker-track" style={{ animationDuration: `${duration}s` }}>
+          {visible.map((c) => <TrendingCard key={`a-${c.address}`} coin={c} onTap={onTap} />)}
+          {visible.map((c) => <TrendingCard key={`b-${c.address}`} coin={c} onTap={onTap} />)}
+        </div>
       </div>
     </div>
   );
