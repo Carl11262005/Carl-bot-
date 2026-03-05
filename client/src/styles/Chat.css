@@ -50,7 +50,7 @@
 
 .message-bubble.assistant {
   background: var(--bg-primary);
-  color: #e0e0e0;
+  color: var(--bubble-bot-text);
   border: 1px solid var(--border);
   border-bottom-left-radius: var(--radius-sm);
 }
@@ -68,7 +68,8 @@
 }
 
 .message-bubble.assistant code {
-  background: rgba(59, 130, 246, 0.12);
+  background: var(--accent-glow);
+  border: 1px solid var(--border);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 13px;
@@ -76,7 +77,8 @@
 }
 
 .message-bubble.assistant pre {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
   padding: 10px 12px;
   border-radius: 8px;
   overflow-x: auto;

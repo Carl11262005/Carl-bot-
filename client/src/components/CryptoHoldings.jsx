@@ -17,7 +17,7 @@ function fmtValue(v) {
   return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function CoinHoldingCard({ holding, onTap, onRemove }) {
+function CoinHoldingCard({ holding, onTap, onRemove, onEdit }) {
   const isMeme = holding.type === 'meme';
   const { data: cbData }   = useCoinbaseQuote(!isMeme ? holding.symbol : null, { refreshMs: 60_000 });
   const { data: memeData } = useMemeQuote(isMeme ? holding.symbol : null, { refreshMs: 60_000 });
@@ -60,6 +60,15 @@ function CoinHoldingCard({ holding, onTap, onRemove }) {
       </div>
 
       <button
+        className="coin-holding-edit"
+        onClick={(e) => { e.stopPropagation(); onEdit?.(holding); }}
+        aria-label="Edit"
+      >
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13">
+          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg>
+      </button>
+      <button
         className="coin-holding-remove"
         onClick={(e) => { e.stopPropagation(); onRemove(holding.id); }}
         aria-label="Remove"
@@ -70,7 +79,7 @@ function CoinHoldingCard({ holding, onTap, onRemove }) {
   );
 }
 
-export function CryptoHoldingsSection({ holdings, onTap, onRemove, onAddNew }) {
+export function CryptoHoldingsSection({ holdings, onTap, onRemove, onEdit, onAddNew }) {
   if (holdings.length === 0) return null;
   return (
     <div className="coin-holdings-section">
@@ -80,14 +89,14 @@ export function CryptoHoldingsSection({ holdings, onTap, onRemove, onAddNew }) {
       </div>
       <div className="coin-holdings-list">
         {holdings.map((h) => (
-          <CoinHoldingCard key={h.id} holding={h} onTap={onTap} onRemove={onRemove} />
+          <CoinHoldingCard key={h.id} holding={h} onTap={onTap} onRemove={onRemove} onEdit={onEdit} />
         ))}
       </div>
     </div>
   );
 }
 
-export function MemeHoldingsSection({ holdings, onTap, onRemove, onAddNew }) {
+export function MemeHoldingsSection({ holdings, onTap, onRemove, onEdit, onAddNew }) {
   if (holdings.length === 0) return null;
   return (
     <div className="coin-holdings-section">
@@ -97,7 +106,7 @@ export function MemeHoldingsSection({ holdings, onTap, onRemove, onAddNew }) {
       </div>
       <div className="coin-holdings-list">
         {holdings.map((h) => (
-          <CoinHoldingCard key={h.id} holding={h} onTap={onTap} onRemove={onRemove} />
+          <CoinHoldingCard key={h.id} holding={h} onTap={onTap} onRemove={onRemove} onEdit={onEdit} />
         ))}
       </div>
     </div>

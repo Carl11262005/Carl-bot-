@@ -55,7 +55,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px 36px 10px 12px; /* right pad for remove button */
+  padding: 10px 60px 10px 12px; /* right pad for edit + remove buttons */
   cursor: pointer;
   position: relative;
   transition: background 0.15s, border-color 0.15s;
@@ -123,29 +123,39 @@
 .coin-holding-pnl.positive { color: #22c55e; }
 .coin-holding-pnl.negative { color: #ef4444; }
 
+.coin-holding-edit,
 .coin-holding-remove {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 20px;
-  height: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
 }
 
+.coin-holding-edit  { right: 34px; font-size: 13px; }
+.coin-holding-remove { right: 8px;  font-size: 15px; }
+
+.coin-holding-card:hover .coin-holding-edit,
 .coin-holding-card:hover .coin-holding-remove {
   opacity: 1;
 }
 
+.coin-holding-edit:hover {
+  color: var(--accent-light);
+  background: rgba(59, 130, 246, 0.1);
+}
+
 .coin-holding-remove:hover {
   color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }

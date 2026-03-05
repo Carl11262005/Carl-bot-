@@ -48,41 +48,46 @@ function calcRSI(closes, period = 14) {
 function analyzeCoin(coin, chartPoints) {
   const { marketCap, liquidity, volume24h, changePercent } = coin;
   const hasDexData = marketCap != null || liquidity != null || volume24h != null;
-  if (!hasDexData) return null;
 
-  let score = 100;
+  // Base score: start higher for established exchange-listed coins
+  let score = hasDexData ? 100 : 78;
   const risks = [], positives = [];
 
-  // Market cap tier
-  if (marketCap == null) {
+  if (!hasDexData) {
+    positives.push('Listed on major exchange — prices from verified source');
+    positives.push('Not a micro-cap or unknown token');
+  }
+
+  // Market cap tier (DEX tokens only)
+  if (hasDexData && marketCap == null) {
     score -= 15;
-  } else if (marketCap < 500_000) {
+  } else if (hasDexData && marketCap < 500_000) {
     score -= 40; risks.push('Micro-cap under $500K — extreme risk');
   } else if (marketCap < 5_000_000) {
     score -= 25; risks.push('Very small market cap — high volatility');
   } else if (marketCap < 50_000_000) {
     score -= 10; risks.push('Small-cap coin — speculative play');
-  } else if (marketCap >= 500_000_000) {
+  } else if (hasDexData && marketCap >= 500_000_000) {
     positives.push('Large market cap — relatively more established');
-  } else {
+  } else if (hasDexData) {
     positives.push('Mid-cap — moderate risk profile');
   }
 
-  // Liquidity
-  if (liquidity == null) {
+  // Liquidity (DEX tokens only)
+  if (hasDexData && liquidity == null) {
     score -= 10;
-  } else if (liquidity < 20_000) {
+  } else if (hasDexData && liquidity < 20_000) {
     score -= 35; risks.push('Liquidity under $20K — high rug pull risk');
-  } else if (liquidity < 100_000) {
+  } else if (hasDexData && liquidity < 100_000) {
     score -= 20; risks.push('Low liquidity — expect significant slippage');
-  } else if (liquidity < 500_000) {
+  } else if (hasDexData && liquidity < 500_000) {
     score -= 5;
-  } else {
+  } else if (hasDexData) {
     positives.push('Good liquidity — low slippage risk');
   }
 
-  // Volume/MCap ratio
-  if (marketCap && volume24h) {
+  // Volume/MCap ratio (DEX tokens only)
+  if (hasDexData && marketCap && volume24h) {
     const ratio = volume24h / marketCap;
     if (ratio < 0.01) {
       score -= 15; risks.push('Very low trading volume — low market interest');
@@ -103,10 +108,17 @@ function analyzeCoin(coin, chartPoints) {
   score = Math.max(0, Math.min(100, score));
 
   let safetyLabel, safetyColor, safetyIcon;
-  if      (score >= 70) { safetyLabel = 'Lower Risk';     safetyColor = '#22c55e'; safetyIcon = '🛡️'; }
-  else if (score >= 45) { safetyLabel = 'Moderate Risk';  safetyColor = '#f59e0b'; safetyIcon = '⚠️'; }
-  else if (score >= 25) { safetyLabel = 'High Risk';      safetyColor = '#f97316'; safetyIcon = '🚨'; }
-  else                  { safetyLabel = 'Very High Risk'; safetyColor = '#ef4444'; safetyIcon = '💀'; }
+  if (!hasDexData) {
+    // Major exchange-listed cryptos — use different vocabulary
+    if      (score >= 70) { safetyLabel = 'Established';    safetyColor = '#22c55e'; safetyIcon = '✅'; }
+    else if (score >= 45) { safetyLabel = 'Market Caution'; safetyColor = '#f59e0b'; safetyIcon = '⚠️'; }
+    else                  { safetyLabel = 'High Risk Zone'; safetyColor = '#ef4444'; safetyIcon = '🚨'; }
+  } else {
+    if      (score >= 70) { safetyLabel = 'Lower Risk';     safetyColor = '#22c55e'; safetyIcon = '🛡️'; }
+    else if (score >= 45) { safetyLabel = 'Moderate Risk';  safetyColor = '#f59e0b'; safetyIcon = '⚠️'; }
+    else if (score >= 25) { safetyLabel = 'High Risk';      safetyColor = '#f97316'; safetyIcon = '🚨'; }
+    else                  { safetyLabel = 'Very High Risk'; safetyColor = '#ef4444'; safetyIcon = '💀'; }
+  }
 
   // Chart-based signals
   let buySignal = null, exitSignal = null, trendLabel = null;
@@ -285,7 +297,7 @@ export default function CryptoDetail({ coin, onClose, onAddToPortfolio }) {
     [coin.symbol, coin.marketCap, coin.liquidity, coin.volume24h, coin.changePercent, chartData]
   );
 
-  const isMeme = coin.address != null || coin.marketCap != null || coin.liquidity != null;
+  // Show analysis for all coins; major cryptos (no DEX data) get chart-based signals only
 
   return (
     <div className="crypto-detail">
@@ -354,8 +366,8 @@ export default function CryptoDetail({ coin, onClose, onAddToPortfolio }) {
           ))}
         </div>
 
-        {/* Safety & timing — only for meme/DeFi coins with market data */}
-        {isMeme && <SafetyCard analysis={analysis} />}
+        {/* Safety & timing — shown for all coins */}
+        {analysis && <SafetyCard analysis={analysis} />}
 
         {/* Market stats */}
         {(coin.marketCap != null || coin.volume24h != null || coin.liquidity != null) && (

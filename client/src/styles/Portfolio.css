@@ -36,17 +36,18 @@
   background: linear-gradient(to left, var(--bg-secondary), transparent);
 }
 
-/* The track animates right: translateX(-50%) → translateX(0) */
+/* Track scrolls left: translateX(0) → translateX(-50%) for seamless loop */
 .ticker-track {
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
-  animation: tickerRight linear infinite;
+  animation: tickerScroll linear infinite;
+  will-change: transform;
 }
 
-@keyframes tickerRight {
-  0%   { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .ticker-item {
@@ -67,6 +68,8 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--text-primary);
+  min-width: 64px;
+  display: inline-block;
 }
 
 .ticker-change {
@@ -75,6 +78,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
+  min-width: 60px;
 }
 
 .ticker-change.positive { color: var(--color-positive); }
@@ -84,6 +88,8 @@
 .ticker-loading {
   font-size: 13px;
   color: var(--text-muted);
+  min-width: 124px;
+  display: inline-block;
 }
 
 .ticker-sep {
@@ -147,6 +153,7 @@
   animation: statusPulse 2s ease-in-out infinite;
 }
 
+/* Legacy: kept for reference, replaced by ticker */
 .crypto-cards-row {
   display: flex;
   flex-direction: row;
@@ -158,6 +165,38 @@
 
 .crypto-cards-row::-webkit-scrollbar {
   display: none;
+}
+
+/* ── Auto-scrolling crypto/meme coin ticker ──────────────────────────────── */
+.crypto-ticker-outer {
+  position: relative;
+  overflow: hidden;
+}
+
+.crypto-ticker-outer .ticker-fade-left {
+  background: linear-gradient(to right, var(--bg-page), transparent);
+}
+
+.crypto-ticker-outer .ticker-fade-right {
+  background: linear-gradient(to left, var(--bg-page), transparent);
+}
+
+.crypto-ticker-track {
+  display: inline-flex;
+  gap: 10px;
+  padding: 6px 0 14px;
+  animation: cryptoTickerScroll linear infinite;
+  will-change: transform;
+}
+
+/* Pause on hover so user can read / click cards */
+.crypto-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes cryptoTickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* Individual crypto card */
@@ -294,6 +333,181 @@
   color: var(--color-neutral);
 }
 
+/* Wrapper outside overflow:hidden summary — lets dropdown overflow freely */
+.stock-search-bar-wrapper {
+  padding: 8px 16px 4px;
+  position: relative;
+}
+
+/* When search is open, the panel fills the wrapper */
+.stock-search-bar-wrapper .stock-search-panel {
+  width: 100%;
+}
+
+/* Stock search button / panel */
+.stock-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.stock-search-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-light);
+  background: var(--accent-subtle);
+}
+
+.stock-search-panel {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.stock-search-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+}
+
+.stock-search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.stock-search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+  letter-spacing: 0.5px;
+}
+
+.stock-search-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.stock-search-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-light);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.stock-search-cancel {
+  font-size: 18px;
+  color: var(--text-muted);
+  line-height: 1;
+  padding: 2px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.stock-search-cancel:hover { color: var(--color-negative); }
+
+.stock-search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  overflow: hidden;
+  z-index: 50;
+  animation: fadeInUp 0.15s ease both;
+}
+
+.stock-search-result {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--border);
+}
+
+.stock-search-result:last-child { border-bottom: none; }
+.stock-search-result:hover { background: var(--accent-subtle); }
+
+.stock-search-result-symbol {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-accent);
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.stock-search-result-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-search-result-exch {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+}
+
+.stock-search-empty {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Inline empty state (when portfolio has no stocks but search bar is present) */
+.portfolio-empty-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 /* Stock list with staggered animation */
 .portfolio-list {
   padding: 12px 16px;
@@ -427,8 +641,28 @@
   letter-spacing: 0.5px;
 }
 
+.stock-card-edit {
+  padding: 6px;
+  color: var(--text-muted);
+  transition: color 0.2s, background 0.15s, transform 0.15s;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stock-card-edit:hover {
+  color: var(--accent-light);
+  background: rgba(59, 130, 246, 0.1);
+  transform: scale(1.1);
+}
+
+.stock-card-edit:active {
+  transform: scale(0.9);
+}
+
 .stock-card-delete {
-  margin-left: 12px;
+  margin-left: 4px;
   padding: 6px;
   color: var(--text-muted);
   transition: color 0.2s, transform 0.15s;
@@ -938,4 +1172,288 @@
 .coin-prefill-price {
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+/* ── Light mode overrides ────────────────────────────────────────────────── */
+[data-theme="light"] .portfolio-summary {
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.08) 0%, rgba(240, 240, 248, 0.95) 100%);
+}
+
+[data-theme="light"] .stock-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .crypto-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .add-menu {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] .crypto-ticker-outer .ticker-fade-left {
+  background: linear-gradient(to right, var(--bg-page), transparent);
+}
+
+[data-theme="light"] .crypto-ticker-outer .ticker-fade-right {
+  background: linear-gradient(to left, var(--bg-page), transparent);
+}
+
+[data-theme="light"] .stock-ticker {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="light"] .ticker-fade-left {
+  background: linear-gradient(to right, var(--bg-secondary), transparent);
+}
+
+[data-theme="light"] .ticker-fade-right {
+  background: linear-gradient(to left, var(--bg-secondary), transparent);
+}
+
+/* ── Portfolio Insights card ─────────────────────────────────────────────── */
+.pi-card {
+  margin: 12px 12px 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: fadeInUp 0.35s ease both;
+}
+
+.pi-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  gap: 8px;
+  text-align: left;
+}
+
+.pi-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pi-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pi-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pi-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pi-health-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  letter-spacing: 0.3px;
+}
+
+.pi-chevron {
+  font-size: 18px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+  display: inline-block;
+  line-height: 1;
+}
+.pi-chevron.open {
+  transform: rotate(90deg);
+}
+
+/* Summary row */
+.pi-summary-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 4px 14px 12px;
+}
+
+.pi-metric {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pi-metric-divider {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+  margin: 0 12px;
+  flex-shrink: 0;
+}
+
+.pi-metric-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.pi-metric-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.pi-score-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pi-score-track {
+  flex: 1;
+  height: 5px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+  max-width: 60px;
+}
+
+.pi-score-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.pi-score-num {
+  font-size: 12px;
+  font-weight: 800;
+  min-width: 22px;
+}
+
+/* Allocation bars */
+.pi-alloc-section {
+  padding: 0 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pi-alloc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pi-alloc-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.pi-alloc-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.pi-alloc-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.pi-alloc-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Expanded panel */
+.pi-expanded {
+  border-top: 1px solid var(--border);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeIn 0.2s ease both;
+}
+
+.pi-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pi-section-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 2px;
+}
+
+.pi-insight {
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.pi-insight.risk {
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
+  border-left: 2px solid #ef4444;
+}
+
+.pi-insight.positive {
+  background: rgba(34, 197, 94, 0.08);
+  color: #86efac;
+  border-left: 2px solid #22c55e;
+}
+
+[data-theme="light"] .pi-insight.risk    { color: #b91c1c; }
+[data-theme="light"] .pi-insight.positive { color: #15803d; }
+
+.pi-suggestion {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  padding-left: 6px;
+  border-left: 2px solid var(--border-accent);
+}
+
+.pi-disclaimer {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
 }

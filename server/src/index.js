@@ -25,7 +25,7 @@ app.use('/api/crypto', cryptoLimiter, cryptoRouter);
 app.use('/api/meme',   memeLimiter,   memeRouter);
 
 // Serve React build only when running locally (Firebase Hosting handles this in production)
-const IS_FIREBASE = !!(process.env.K_SERVICE || process.env.FUNCTION_NAME || process.env.FUNCTIONS_EMULATOR);
+const IS_FIREBASE = !!(process.env.K_SERVICE || process.env.FUNCTION_NAME || process.env.FUNCTIONS_EMULATOR || process.env.FIREBASE_CONFIG);
 if (!IS_FIREBASE) {
   const clientDist = join(__dirname, '../../client/dist');
   app.use(express.static(clientDist));
@@ -36,6 +36,6 @@ app.use(errorHandler);
 
 // ── Start local server when NOT running inside Firebase Functions ─────────────
 if (!IS_FIREBASE) {
-  const PORT = process.env.PORT || 5001;
+  const PORT = 5001;
   app.listen(PORT, () => console.log(`CarlBot server running on port ${PORT}`));
 }

@@ -5,22 +5,28 @@ import { CryptoSection, MemeSection, MoonshotSection } from './CryptoSection.jsx
 import { CryptoHoldingsSection, MemeHoldingsSection } from './CryptoHoldings.jsx';
 import AddStockModal from './AddStockModal.jsx';
 import AddCoinModal from './AddCoinModal.jsx';
-import ImportModal from './ImportModal.jsx';
+import EditHoldingModal from './EditHoldingModal.jsx';
+import StockSearch from './StockSearch.jsx';
 import StockDetail from './StockDetail.jsx';
 import CryptoDetail from './CryptoDetail.jsx';
+import PortfolioInsights from './PortfolioInsights.jsx';
 import '../styles/Portfolio.css';
 
 export default function PortfolioView({
-  portfolio, addStock, removeStock,
-  cryptoHoldings, memeHoldings, addHolding, removeHolding,
+  portfolio, addStock, removeStock, updateStock,
+  cryptoHoldings, memeHoldings, addHolding, removeHolding, updateHolding,
 }) {
   const [showModal, setShowModal]   = useState(false);
-  const [showImport, setShowImport] = useState(false);
+  const [addStockInit, setAddStockInit] = useState(null); // { symbol, name } pre-fill
   const [addMenu, setAddMenu]       = useState(false);
   const [addCoinCfg, setAddCoinCfg] = useState(null); // { type, coin? }
 
   const [selectedStock, setSelectedStock] = useState(null);
   const [selectedCoin,  setSelectedCoin]  = useState(null);
+
+  // Edit modals
+  const [editStock, setEditStock] = useState(null); // stock object
+  const [editCoin,  setEditCoin]  = useState(null); // coin holding object
 
   function openAddCoin(type, coin = null) {
     setAddMenu(false);
@@ -32,6 +38,13 @@ export default function PortfolioView({
       {/* Scrolling market ticker at the very top */}
       <StockTicker portfolio={portfolio} />
 
+      {/* Portfolio insights / overview card */}
+      <PortfolioInsights
+        portfolio={portfolio}
+        cryptoHoldings={cryptoHoldings}
+        memeHoldings={memeHoldings}
+      />
+
       {/* All scrollable content below the ticker */}
       <div className="portfolio-scroll">
 
@@ -40,6 +53,7 @@ export default function PortfolioView({
           holdings={cryptoHoldings}
           onTap={setSelectedCoin}
           onRemove={removeHolding}
+          onEdit={setEditCoin}
           onAddNew={() => openAddCoin('crypto')}
         />
 
@@ -48,57 +62,36 @@ export default function PortfolioView({
           holdings={memeHoldings}
           onTap={setSelectedCoin}
           onRemove={removeHolding}
+          onEdit={setEditCoin}
           onAddNew={() => openAddCoin('meme')}
         />
 
         {/* ── Your Stock Holdings ───────────────────── */}
-        {portfolio.length === 0 ? (
-          <div className="portfolio-empty">
-            <div className="portfolio-empty-icon">📊</div>
-            <h3>No stocks yet</h3>
-            <p>Tap the + button to add a stock, or import your Robinhood portfolio.</p>
-            <button
-              onClick={() => setShowImport(true)}
-              style={{
-                marginTop: 16,
-                padding: '10px 20px',
-                borderRadius: 'var(--radius-sm)',
-                background: 'var(--bg-secondary)',
-                color: 'var(--text-accent)',
-                fontSize: 14,
-                fontWeight: 600,
-                border: '1px solid var(--border-accent)',
-              }}
-            >
-              Import Portfolio
-            </button>
-          </div>
-        ) : (
-          <div className="portfolio-holdings">
-            <div className="portfolio-summary">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div className="portfolio-summary-label">Your Holdings</div>
-                  <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>
-                    {portfolio.length} stock{portfolio.length !== 1 ? 's' : ''} tracked
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowImport(true)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'var(--bg-secondary)',
-                    color: 'var(--text-accent)',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    border: '1px solid var(--border)',
-                  }}
-                >
-                  Import
-                </button>
+        <div className="portfolio-holdings">
+          {/* Summary header — overflow:hidden for glow, no search inside */}
+          <div className="portfolio-summary">
+            <div className="portfolio-summary-label">Your Holdings</div>
+            {portfolio.length > 0 && (
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>
+                {portfolio.length} stock{portfolio.length !== 1 ? 's' : ''} tracked
               </div>
+            )}
+          </div>
+
+          {/* Search bar lives OUTSIDE the overflow:hidden summary */}
+          <div className="stock-search-bar-wrapper">
+            <StockSearch onSelect={(item) => {
+              const owned = portfolio.find((s) => s.symbol === item.symbol);
+              setSelectedStock(owned ?? item);
+            }} />
+          </div>
+
+          {portfolio.length === 0 ? (
+            <div className="portfolio-empty-inline">
+              <div className="portfolio-empty-icon" style={{ fontSize: 36 }}>📊</div>
+              <p>No stocks yet — tap <strong>+</strong> to add one or search above.</p>
             </div>
+          ) : (
             <div className="portfolio-list">
               {portfolio.map((stock) => (
                 <StockCard
@@ -106,11 +99,12 @@ export default function PortfolioView({
                   stock={stock}
                   onRemove={removeStock}
                   onTap={() => setSelectedStock(stock)}
+                  onEdit={setEditStock}
                 />
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* ── Crypto ───────────────────────────── */}
         <CryptoSection onTap={setSelectedCoin} />
@@ -152,8 +146,13 @@ export default function PortfolioView({
         </>
       )}
 
-      {showModal  && <AddStockModal onAdd={addStock} onClose={() => setShowModal(false)} />}
-      {showImport && <ImportModal onImport={addStock} onClose={() => setShowImport(false)} />}
+      {showModal && (
+        <AddStockModal
+          initialSymbol={addStockInit}
+          onAdd={addStock}
+          onClose={() => { setShowModal(false); setAddStockInit(null); }}
+        />
+      )}
 
       {addCoinCfg && (
         <AddCoinModal
@@ -164,7 +163,36 @@ export default function PortfolioView({
         />
       )}
 
-      {selectedStock && <StockDetail stock={selectedStock} onClose={() => setSelectedStock(null)} />}
+      {/* Edit modals */}
+      {editStock && (
+        <EditHoldingModal
+          holding={editStock}
+          type="stock"
+          onSave={(fields) => updateStock(editStock.symbol, fields)}
+          onClose={() => setEditStock(null)}
+        />
+      )}
+
+      {editCoin && (
+        <EditHoldingModal
+          holding={editCoin}
+          type="coin"
+          onSave={(fields) => updateHolding(editCoin.id, fields)}
+          onClose={() => setEditCoin(null)}
+        />
+      )}
+
+      {selectedStock && (
+        <StockDetail
+          stock={selectedStock}
+          onClose={() => setSelectedStock(null)}
+          onAdd={(stockInfo) => {
+            setSelectedStock(null);
+            setAddStockInit(stockInfo);
+            setShowModal(true);
+          }}
+        />
+      )}
 
       {selectedCoin && (
         <CryptoDetail
