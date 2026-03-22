@@ -275,6 +275,122 @@ a {
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* ── Header user avatar / sign-out ──────── */
+.header-user-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--border-strong);
+  transition: border-color var(--transition-fast), opacity var(--transition-fast);
+  cursor: pointer;
+  background: var(--bg-secondary);
+}
+
+.header-user-btn:hover {
+  border-color: var(--accent-light);
+  opacity: 0.85;
+}
+
+.header-user-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.header-user-initials {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Sign-in screen ──────────────────────── */
+.signin-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  z-index: 999;
+}
+
+.signin-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.signin-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.signin-subtitle {
+  font-size: 14px;
+  color: var(--accent-light);
+  margin: 0;
+  font-weight: 500;
+}
+
+.signin-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 4px 0 8px;
+  line-height: 1.5;
+}
+
+.signin-google-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  color: #3c3c3c;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: box-shadow var(--transition-fast), opacity var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.signin-google-btn:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  opacity: 0.95;
+}
+
+/* ── Auth loading ────────────────────────── */
+.auth-loading {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
 /* ── Conversation Sidebar ────────────────── */
 .sidebar-overlay {
   position: fixed;

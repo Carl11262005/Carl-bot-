@@ -16,11 +16,7 @@ async function getYF() {
 // Suppress validation warnings (yahoo-finance2 can throw ValidationError on partial data)
 const SUPPRESS = { validateResult: false };
 
-// Pre-warm Yahoo Finance (including cookie fetch) so the first user request is fast
-getYF()
-  .then((yf) => yf.quote('AAPL', {}, { validateResult: false }))
-  .then(() => console.log('[stock] Yahoo Finance ready'))
-  .catch((err) => console.warn('[stock] Yahoo Finance warmup failed:', err?.message));
+// NOTE: pre-warm removed — top-level network calls cause Firebase deploy timeouts.
 
 router.get('/quote', async (req, res, next) => {
   try {

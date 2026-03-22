@@ -1,6 +1,6 @@
 import CarlMascot from './CarlMascot.jsx';
 
-export default function Header({ onMenuClick, theme, onToggleTheme }) {
+export default function Header({ onMenuClick, theme, onToggleTheme, user, onSignOut }) {
   return (
     <header className="app-header">
       <button className="header-menu-btn" onClick={onMenuClick} aria-label="Open conversations">
@@ -27,6 +27,22 @@ export default function Header({ onMenuClick, theme, onToggleTheme }) {
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
+      {user && (
+        <button
+          className="header-user-btn"
+          onClick={onSignOut}
+          title={`Signed in as ${user.displayName || user.email}\nClick to sign out`}
+          aria-label="Sign out"
+        >
+          {user.photoURL ? (
+            <img src={user.photoURL} alt="" className="header-user-avatar" referrerPolicy="no-referrer" />
+          ) : (
+            <span className="header-user-initials">
+              {(user.displayName || user.email || '?')[0].toUpperCase()}
+            </span>
+          )}
+        </button>
+      )}
     </header>
   );
 }
