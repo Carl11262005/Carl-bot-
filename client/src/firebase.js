@@ -4,7 +4,7 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAkcnYwx6oE2TkM4S8-OqoHQksgaAgPV18",
-  authDomain: "carl-bot-b606c.firebaseapp.com",
+  authDomain: "carl-bot-b606c.web.app",
   projectId: "carl-bot-b606c",
   storageBucket: "carl-bot-b606c.firebasestorage.app",
   messagingSenderId: "954326871420",
