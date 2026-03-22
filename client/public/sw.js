@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carlbot-v1';
+const CACHE_NAME = 'carlbot-v2';
 const SHELL_ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', (event) => {
