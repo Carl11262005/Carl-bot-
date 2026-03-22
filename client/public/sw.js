@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carlbot-v2';
+const CACHE_NAME = 'carlbot-v3';
 const SHELL_ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', (event) => {
@@ -18,7 +18,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.url.includes('/api/')) return;
+  const url = event.request.url;
+  // Never intercept API calls or Firebase's auth handler (/__/auth/*)
+  if (url.includes('/api/') || url.includes('/__/')) return;
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
