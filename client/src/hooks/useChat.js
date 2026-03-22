@@ -3,7 +3,6 @@ import { sendMessage as sendChatMessage } from '../services/chatService.js';
 import { db } from '../firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-const DOC_REF = doc(db, 'userData', 'conversations');
 const STORAGE_KEY = 'carlbot_conversations';
 
 function generateId() {
@@ -50,30 +49,27 @@ function saveLocal(convs) {
   } catch {}
 }
 
-async function saveToFirestore(convs) {
+async function saveToFirestore(docRef, convs) {
   try {
-    await setDoc(DOC_REF, { conversations: convs });
+    await setDoc(docRef, { conversations: convs });
   } catch (e) {
     console.warn('Firestore save failed:', e);
   }
 }
 
-// Initialize state once
-const initRef = { current: null };
-function getInitialState() {
-  if (!initRef.current) {
+export function useChat(userId) {
+  const [conversations, setConversations] = useState(() => {
     const saved = loadLocal();
-    const conversations = saved && saved.length > 0 ? saved : [createNewConversation()];
-    initRef.current = { conversations, currentId: conversations[0].id };
-  }
-  return initRef.current;
-}
-
-export function useChat() {
-  const init = getInitialState();
-  const [conversations, setConversations] = useState(init.conversations);
-  const [currentId, setCurrentId] = useState(init.currentId);
+    const convs = saved && saved.length > 0 ? saved : [createNewConversation()];
+    return convs;
+  });
+  const [currentId, setCurrentId] = useState(() => {
+    const saved = loadLocal();
+    const convs = saved && saved.length > 0 ? saved : null;
+    return convs ? convs[0].id : conversations[0]?.id;
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const loadedUserRef = useRef(null);
 
   const currentIdRef = useRef(currentId);
   currentIdRef.current = currentId;
@@ -82,9 +78,13 @@ export function useChat() {
   const messages = conversations.find((c) => c.id === currentId)?.messages ?? [];
   messagesRef.current = messages;
 
-  // Load from Firestore on mount
+  // Load from Firestore when userId changes
   useEffect(() => {
-    getDoc(DOC_REF).then((snap) => {
+    if (!userId || loadedUserRef.current === userId) return;
+    loadedUserRef.current = userId;
+
+    const docRef = doc(db, 'users', userId, 'data', 'conversations');
+    getDoc(docRef).then((snap) => {
       if (snap.exists()) {
         const data = snap.data().conversations;
         if (Array.isArray(data) && data.length > 0) {
@@ -95,16 +95,19 @@ export function useChat() {
       } else {
         // First time: push localStorage data up to Firestore
         const local = loadLocal();
-        if (local && local.length > 0) saveToFirestore(local);
+        if (local && local.length > 0) saveToFirestore(docRef, local);
       }
     }).catch((e) => console.warn('Firestore load failed:', e));
-  }, []);
+  }, [userId]);
 
   // Persist whenever conversations change
   useEffect(() => {
     saveLocal(conversations);
-    saveToFirestore(conversations);
-  }, [conversations]);
+    if (userId) {
+      const docRef = doc(db, 'users', userId, 'data', 'conversations');
+      saveToFirestore(docRef, conversations);
+    }
+  }, [conversations, userId]);
 
   // Auto-greet when switching to an empty conversation
   useEffect(() => {
@@ -199,7 +202,6 @@ export function useChat() {
   }, []);
 
   const startNewConversation = useCallback(() => {
-    initRef.current = null;
     const newConv = createNewConversation();
     setConversations((prev) => [newConv, ...prev]);
     setCurrentId(newConv.id);
@@ -213,7 +215,6 @@ export function useChat() {
     setConversations((prev) => {
       const filtered = prev.filter((c) => c.id !== id);
       if (filtered.length === 0) {
-        initRef.current = null;
         const newConv = createNewConversation();
         setCurrentId(newConv.id);
         return [newConv];

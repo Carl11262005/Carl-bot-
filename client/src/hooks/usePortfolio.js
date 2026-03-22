@@ -1,8 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { db } from '../firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-const DOC_REF = doc(db, 'userData', 'portfolio');
 const STORAGE_KEY = 'carlbot_portfolio';
 
 function loadLocal() {
@@ -17,20 +16,25 @@ function saveLocal(portfolio) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolio));
 }
 
-async function saveToFirestore(portfolio) {
+async function saveToFirestore(docRef, portfolio) {
   try {
-    await setDoc(DOC_REF, { stocks: portfolio });
+    await setDoc(docRef, { stocks: portfolio });
   } catch (e) {
     console.warn('Firestore save failed, using localStorage fallback:', e);
   }
 }
 
-export function usePortfolio() {
+export function usePortfolio(userId) {
   const [portfolio, setPortfolio] = useState(loadLocal);
+  const loadedUserRef = useRef(null);
 
-  // On mount, load from Firestore (overrides localStorage if available)
+  // On userId change, load from Firestore
   useEffect(() => {
-    getDoc(DOC_REF).then((snap) => {
+    if (!userId || loadedUserRef.current === userId) return;
+    loadedUserRef.current = userId;
+
+    const docRef = doc(db, 'users', userId, 'data', 'portfolio');
+    getDoc(docRef).then((snap) => {
       if (snap.exists()) {
         const data = snap.data().stocks || [];
         setPortfolio(data);
@@ -38,15 +42,18 @@ export function usePortfolio() {
       } else {
         // First time: push localStorage data up to Firestore
         const local = loadLocal();
-        if (local.length > 0) saveToFirestore(local);
+        if (local.length > 0) saveToFirestore(docRef, local);
       }
     }).catch((e) => console.warn('Firestore load failed:', e));
-  }, []);
+  }, [userId]);
 
   const persist = useCallback((next) => {
     saveLocal(next);
-    saveToFirestore(next);
-  }, []);
+    if (userId) {
+      const docRef = doc(db, 'users', userId, 'data', 'portfolio');
+      saveToFirestore(docRef, next);
+    }
+  }, [userId]);
 
   const addStock = useCallback((entry) => {
     setPortfolio((prev) => {
