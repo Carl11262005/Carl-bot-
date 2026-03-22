@@ -4,20 +4,30 @@ import { auth, googleProvider } from '../firebase.js';
 
 export function useAuth() {
   const [user, setUser] = useState(undefined); // undefined = loading
+  const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
     // Handle the result when the user returns from Google's sign-in page
-    getRedirectResult(auth).catch((e) => console.error('Redirect sign-in failed:', e));
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) setUser(result.user);
+      })
+      .catch((e) => {
+        console.error('Redirect sign-in failed:', e);
+        setAuthError(e.code + ': ' + e.message);
+      });
 
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
     return unsub;
   }, []);
 
   async function signInWithGoogle() {
+    setAuthError(null);
     try {
       await signInWithRedirect(auth, googleProvider);
     } catch (e) {
       console.error('Sign-in failed:', e);
+      setAuthError(e.code + ': ' + e.message);
     }
   }
 
@@ -29,5 +39,5 @@ export function useAuth() {
     }
   }
 
-  return { user, signInWithGoogle, signOut: signOutUser };
+  return { user, authError, signInWithGoogle, signOut: signOutUser };
 }

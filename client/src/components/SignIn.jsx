@@ -1,6 +1,6 @@
 import CarlMascot from './CarlMascot.jsx';
 
-export default function SignIn({ onSignIn }) {
+export default function SignIn({ onSignIn, error }) {
   return (
     <div className="signin-screen">
       <div className="signin-card">
@@ -18,6 +18,11 @@ export default function SignIn({ onSignIn }) {
           </svg>
           Sign in with Google
         </button>
+        {error && (
+          <p style={{ color: '#ef4444', fontSize: 12, textAlign: 'center', marginTop: 8, wordBreak: 'break-all' }}>
+            ⚠️ {error}
+          </p>
+        )}
       </div>
     </div>
   );

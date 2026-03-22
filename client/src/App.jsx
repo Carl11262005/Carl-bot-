@@ -17,7 +17,7 @@ export default function App() {
     () => localStorage.getItem('carlbot-theme') || 'dark'
   );
 
-  const { user, signInWithGoogle, signOut } = useAuth();
+  const { user, authError, signInWithGoogle, signOut } = useAuth();
 
   // Apply theme to <html> element whenever it changes
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function App() {
 
   // Not signed in
   if (!user) {
-    return <SignIn onSignIn={signInWithGoogle} />;
+    return <SignIn onSignIn={signInWithGoogle} error={authError} />;
   }
 
   return (
